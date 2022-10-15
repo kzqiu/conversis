@@ -6,6 +6,8 @@ import os
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = 'mp3'
+token = open('api_token.txt')
+API_TOKEN = token.readline()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -27,7 +29,7 @@ def get_sentiment_labels():
         "sentiment_analysis": True
     }
     headers = {
-        "authorization": "YOUR-API-TOKEN",
+        "authorization": API_TOKEN,
         "content-type": "application/json"
     }
     response = requests.post(endpoint, json=json, headers=headers)
@@ -42,10 +44,13 @@ def read_file(filename, chunk_size=5242880):
                 break
             yield data
 
-    headers = {'authorization': "YOUR-API-TOKEN"}
+    headers = {'authorization': API_TOKEN}
     response = requests.post('https://api.assemblyai.com/v2/upload',
                             headers=headers,
                             data=read_file(filename))
+    
+    # deletes file after being uploaded to AssemblyAI
+    os.remove(os.path.join(UPLOAD_FOLDER, filename))
 
     return response.json()
 
