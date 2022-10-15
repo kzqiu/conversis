@@ -1,6 +1,6 @@
 import './App.css';
 import MicRecorder from 'mic-recorder-to-mp3';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import axios from 'axios';
 import Sentiment from './Sentiment';
 import face from './face.png';
@@ -27,7 +27,7 @@ a
     if (this.state.isBlocked) {
       console.log('Permission Denied');
     } else if (!this.state.clicked){
-      this.setState({ isListening: "Hearing you for the first time" });
+      this.setState({ isListening: "Hearing you for the first time..." });
       this.setState({clicked: true});
       Mp3Recorder
             .start()
@@ -72,7 +72,7 @@ a
           this.setState({ scale: this.scale + this.sentiment * 50});
         })
         .catch(function(response){console.log(response);});
-        this.setState({ isListening: "Listening..."});
+        this.setState({ isListening: "Keep talking! We're loading your results..."});
       })
   }
 
@@ -97,8 +97,8 @@ a
               headers: {"Content-Type" : "multipart/form-data"},})
         .then((response) => {
           console.log(response.data.average);
-          this.setState({sentiment: response.data.average});
-          this.setState({ scale: this.scale + this.sentiment*50});
+          this.setState({ sentiment: response.data.average.toFixed(2) });
+          this.setState({ scale: this.scale + this.sentiment*50 });
         })
         .catch(function(response){console.log(response);});
       })
@@ -121,8 +121,8 @@ a
               headers: {"Content-Type" : "multipart/form-data"},})
         .then((response) => {
           console.log(response.data.average);
-          this.setState({sentiment: response.data.average});
-          this.setState({ scale: this.scale + this.sentiment*50});
+          this.setState({ sentiment: response.data.average.toFixed(2) });
+          this.setState({ scale: this.scale + this.sentiment*50 });
         })
         .catch(function(response){console.log(response);});
       })
@@ -146,7 +146,7 @@ a
       <div className="App-header">
         <p>{ this.state.isListening }</p>
         <Sentiment data = {this.state.sentiment}/>
-          <img src = {face} width={this.state.scale} onClick={!this.state.clicked ? this.start : this.click}>
+          <img src = {face} width={this.state.scale} onClick={!this.state.clicked ? this.start : this.click} alt="face">
           </img>
       </div>
     );
