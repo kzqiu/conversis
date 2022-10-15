@@ -19,7 +19,7 @@ def hello_world():
     return "hello, world!"
 
 # Doc Page: https://www.assemblyai.com/docs/audio-intelligence#sentiment-analysis
-@app.route("/sentiment", methods=['POST'])
+@app.route("/sentiment", methods=['POST', 'GET'])
 def get_sentiment_labels():
     f_loc = upload_speech()["upload_url"]
 
@@ -33,8 +33,9 @@ def get_sentiment_labels():
         "content-type": "application/json"
     }
     response = requests.post(endpoint, json=json, headers=headers)
-    
-    return response.json()
+    username = {"username": 'hi'}
+    #return response.json()
+    return username
 
 def read_file(filename, chunk_size=5242880):
     with open(filename, 'rb') as _file:
