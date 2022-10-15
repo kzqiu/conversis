@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from werkzeug.utils import secure_filename
@@ -72,7 +72,7 @@ def get_sentiments():
 
         elapsed_time = time.time() - start_time
         
-    return process_sentiment_json(response.json())
+    return jsonify(process_sentiment_json(response.json()))
 
 def process_sentiment_json(json):
     sentiments = {}
