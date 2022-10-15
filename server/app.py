@@ -55,14 +55,14 @@ def read_file(filename, chunk_size=5242880):
     return response.json()
 
 def upload_speech():
-    f = request.files['file']
+    f = request.files['file'] # TODO: Check if this works!!!! (Not in HTTP function)
     if f and allowed_filename(f.filename):
-            filename = secure_filename(f.filename)
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename = secure_filename(f.filename)
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 def allowed_filename(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 if __name__ == "__main__":
     app.run()
