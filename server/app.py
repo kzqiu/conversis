@@ -4,6 +4,7 @@ import requests
 from werkzeug.utils import secure_filename
 import os
 import time
+from pydub import AudioSegment
 
 
 UPLOAD_FOLDER = './uploads'
@@ -26,27 +27,55 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 def hello_world():
     return "hello, world!"
 
-# Doc Page: https://www.assemblyai.com/docs/audio-intelligence#sentiment-analysis
+
+@app.route("/initial_sentiment", methods=['POST'])
+def get_initial_sentiments():
+    f_name = request.files['file'].filename
+    upload_speech(request.files['file'])
+
+    # TODO: generate splicing of audio for labels in order
+    sentiments = get_sentiments_data(f_name)
+
+    timestamps = {'A': [], 'B': []}
+
+    for s in sentiments['sentiment_analysis_results']:
+        if s['speaker'] in timestamps:
+            timestamps[s['speaker']].append((s['start'], s['end']))
+    
+    # Create new audio splice files
+
+    os.remove(os.path.join(UPLOAD_FOLDER, f_name))
+
+    return sentiments
+
 @app.route("/sentiment", methods=['POST'])
 def get_sentiments():
     f_name = request.files['file'].filename
-
     upload_speech(request.files['file'])
 
+    # TODO: splice in audio for each label in desired order (A > B > C > etc)
+
+
+    return get_sentiments_data(f_name)
+
+# Doc Page: https://www.assemblyai.com/docs/audio-intelligence#sentiment-analysis
+def get_sentiments_data(f_name, delete_file=True):
     headers_0 = {'authorization': API_TOKEN}
     response_0 = requests.post('https://api.assemblyai.com/v2/upload',
                             headers=headers_0,
                             data=read_file(os.path.join(UPLOAD_FOLDER, f_name)))
     
     # deletes file after being uploaded to AssemblyAI
-    os.remove(os.path.join(UPLOAD_FOLDER, f_name))
+    if delete_file:
+        os.remove(os.path.join(UPLOAD_FOLDER, f_name))
 
     f_link = response_0.json()['upload_url']
 
     endpoint = "https://api.assemblyai.com/v2/transcript"
     json = {
         "audio_url": f_link, # have audio url from some source
-        "sentiment_analysis": True
+        "sentiment_analysis": True,
+        "speaker_labels": True,
     }
     headers = {
         "authorization": API_TOKEN,
@@ -85,7 +114,6 @@ def process_sentiment_json(json):
     sentiments['average'] = avg_sent / len(sentiments['sentiment_analysis_results'])
 
     return sentiments
-        
     
 def read_file(filename, chunk_size=5242880):
     with open(filename, 'rb') as _file:
