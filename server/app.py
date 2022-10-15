@@ -3,11 +3,19 @@ from flask_cors import CORS
 import requests
 from werkzeug.utils import secure_filename
 import os
+import time
+
 
 UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = 'mp3'
+ALLOWED_EXTENSIONS = ['mp3', 'm4a']
+
 token = open('api_token.txt')
 API_TOKEN = token.readline()
+
+SENTIMENT_ENUM = {'POSITIVE': 1, 
+                  'NEUTRAL': 0, 
+                  'NEGATIVE': -1}
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -19,24 +27,66 @@ def hello_world():
     return "hello, world!"
 
 # Doc Page: https://www.assemblyai.com/docs/audio-intelligence#sentiment-analysis
-@app.route("/sentiment", methods=['POST', 'GET'])
-def get_sentiment_labels():
-    f_loc = upload_speech()["upload_url"]
+@app.route("/sentiment", methods=['POST'])
+def get_sentiments():
+    f_name = request.files['file'].filename
+
+    upload_speech(request.files['file'])
+
+    headers_0 = {'authorization': API_TOKEN}
+    response_0 = requests.post('https://api.assemblyai.com/v2/upload',
+                            headers=headers_0,
+                            data=read_file(os.path.join(UPLOAD_FOLDER, f_name)))
+    
+    # deletes file after being uploaded to AssemblyAI
+    os.remove(os.path.join(UPLOAD_FOLDER, f_name))
+
+    f_link = response_0.json()['upload_url']
 
     endpoint = "https://api.assemblyai.com/v2/transcript"
     json = {
-        "audio_url": f_loc, # have audio url from some source
+        "audio_url": f_link, # have audio url from some source
         "sentiment_analysis": True
     }
     headers = {
         "authorization": API_TOKEN,
         "content-type": "application/json"
     }
-    response = requests.post(endpoint, json=json, headers=headers)
-    username = {"username": 'hi'}
-    #return response.json()
-    return username
 
+    start_time = time.time()
+    elapsed_time = 0
+
+    response = requests.post(endpoint, json=json, headers=headers)
+
+    new_endpoint = "https://api.assemblyai.com/v2/transcript/" + response.json()['id']
+
+    while elapsed_time < 15:
+        time.sleep(0.5)
+
+        response = requests.get(new_endpoint, headers={'authorization': API_TOKEN})
+
+        status = response.json()['status']
+
+        if (status == 'completed' or status == 'error'):
+            break
+
+        elapsed_time = time.time() - start_time
+        
+    return process_sentiment_json(response.json())
+
+def process_sentiment_json(json):
+    sentiments = {}
+    sentiments['sentiment_analysis_results'] = json['sentiment_analysis_results']
+    avg_sent = 0
+
+    for res in sentiments['sentiment_analysis_results']:
+        avg_sent += float(res['confidence']) * SENTIMENT_ENUM[res['sentiment']]
+    
+    sentiments['average'] = avg_sent / len(sentiments['sentiment_analysis_results'])
+
+    return sentiments
+        
+    
 def read_file(filename, chunk_size=5242880):
     with open(filename, 'rb') as _file:
         while True:
@@ -45,25 +95,14 @@ def read_file(filename, chunk_size=5242880):
                 break
             yield data
 
-    headers = {'authorization': API_TOKEN}
-    response = requests.post('https://api.assemblyai.com/v2/upload',
-                            headers=headers,
-                            data=read_file(filename))
-    
-    # deletes file after being uploaded to AssemblyAI
-    os.remove(os.path.join(UPLOAD_FOLDER, filename))
-
-    return response.json()
-
-def upload_speech():
-    f = request.files['file']
+def upload_speech(f):
     if f and allowed_filename(f.filename):
-            filename = secure_filename(f.filename)
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename = secure_filename(f.filename)
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 def allowed_filename(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 if __name__ == "__main__":
     app.run()

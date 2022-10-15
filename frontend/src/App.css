@@ -25,6 +25,15 @@
   font-size: calc(10px + 2vmin);
 }
 
+.container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  width: 100%; 
+  max-width: 100%; 
+}
+
 .cursive{
   font-family: 'Sacramento', cursive;
 }
@@ -38,8 +47,10 @@
 }
 
 .pic{
-  display: inline-block;
-  vertical-align: middle;
+  flex: 1;
+  max-width: 100%;
+  height: auto;
+  max-height: 310px;
 }
 
 @keyframes App-logo-spin {

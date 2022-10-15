@@ -33,6 +33,9 @@ class Audio extends React.Component {
         const blobURL = URL.createObjectURL(blob)
         this.setState({ blobURL, isRecording: false });
       }).catch((e) => console.log(e));
+    fetch('http://localhost:5000', {method: 'POST', audio_url: this.state.blobURL})
+    .then(response => response.json())
+    .then(json => {console.log(json)});
   };
 
   componentDidMount() {
@@ -47,6 +50,7 @@ class Audio extends React.Component {
       },
     );
   }
+
   render(){
     return (
       <div className="App-header">
@@ -57,6 +61,8 @@ class Audio extends React.Component {
       </div>
     );
   }
+
 }
+
 
 export default Audio;
