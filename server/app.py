@@ -3,9 +3,10 @@ from flask_cors import CORS
 import requests
 from werkzeug.utils import secure_filename
 import os
+import time
 
 UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = 'mp3'
+ALLOWED_EXTENSIONS = ['mp3', 'm4a']
 token = open('api_token.txt')
 API_TOKEN = token.readline()
 
@@ -45,8 +46,26 @@ def get_sentiments():
             "authorization": API_TOKEN,
             "content-type": "application/json"
         }
+
+        start_time = time.time()
+        elapsed_time = 0
+
         response = requests.post(endpoint, json=json, headers=headers)
-        
+
+        new_endpoint = "https://api.assemblyai.com/v2/transcript/" + response.json()['id']
+
+        while elapsed_time < 15:
+            time.sleep(0.5)
+
+            response = requests.get(new_endpoint, headers={'authorization': API_TOKEN})
+
+            status = response.json()['status']
+
+            if (status == 'completed' or status == 'error'):
+                break
+
+            elapsed_time = time.time() - start_time
+            
         return response.json()
     
     return {}
