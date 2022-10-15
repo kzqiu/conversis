@@ -1,25 +1,24 @@
 import './App.css';
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import React from 'react';
 
-function Sentiment (){
-
+const Sentiment = (props) => {
+/*
     const [sentiment, getSentiment] = useState("")
 
     useEffect(() => {
         axios
-            .get('http://localhost:5000')
+            .get('http://localhost:5000/sentiment')
             .then(res => {
-                const sentiment = res.data;
+                const sentiment = res.average;
                 console.log(sentiment);
                 getSentiment(sentiment);
         }).catch(error => {
             console.log(error)
           })
     })
-
+*/
     return(
-        <p>Your sentiment score is: { sentiment }</p>
+        <p>Your sentiment score is: {props.data}</p>
     )
 }
 export default Sentiment;

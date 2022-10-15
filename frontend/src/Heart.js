@@ -1,11 +1,11 @@
-import heart from './logo.svg'; //replace this with an actual image of the heart
+import face from './face.png'; //replace this with an actual image of the heart
 import './App.css';
 import React from 'react';
 
 
 function Heart(){
     return(
-        <img className="pic" src={heart} alt="right-heart"/>
+        <img className="pic" src={face} alt="right-heart"/>
     );
 }
 
