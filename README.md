@@ -4,4 +4,4 @@ A webapp built using React, Flask, and the AssemblyAPI to analyze a conversation
 
 Built during HackHarvard 2022: Control, Alt, Create!
 
-Contributors: Kevin Qiu, Nicholas Zhang, Qazi Ashikin, Ziheng Huang
+Contributors: Kevin Qiu, Nicholas Zhang, Qazi Ashikin
