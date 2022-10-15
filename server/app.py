@@ -20,21 +20,36 @@ def hello_world():
 
 # Doc Page: https://www.assemblyai.com/docs/audio-intelligence#sentiment-analysis
 @app.route("/sentiment", methods=['POST'])
-def get_sentiment_labels():
-    f_loc = upload_speech()["upload_url"]
+def get_sentiments():
+    f_name = request.files['file'].filename
 
-    endpoint = "https://api.assemblyai.com/v2/transcript"
-    json = {
-        "audio_url": f_loc, # have audio url from some source
-        "sentiment_analysis": True
-    }
-    headers = {
-        "authorization": API_TOKEN,
-        "content-type": "application/json"
-    }
-    response = requests.post(endpoint, json=json, headers=headers)
+    if f_name != '': 
+        upload_speech(request.files['file'])
+
+        headers_0 = {'authorization': API_TOKEN}
+        response_0 = requests.post('https://api.assemblyai.com/v2/upload',
+                                headers=headers_0,
+                                data=read_file(os.path.join(UPLOAD_FOLDER, f_name)))
+        
+        # deletes file after being uploaded to AssemblyAI
+        os.remove(os.path.join(UPLOAD_FOLDER, f_name))
+
+        f_link = response_0.json()['upload_url']
+
+        endpoint = "https://api.assemblyai.com/v2/transcript"
+        json = {
+            "audio_url": f_link, # have audio url from some source
+            "sentiment_analysis": True
+        }
+        headers = {
+            "authorization": API_TOKEN,
+            "content-type": "application/json"
+        }
+        response = requests.post(endpoint, json=json, headers=headers)
+        
+        return response.json()
     
-    return response.json()
+    return {}
 
 def read_file(filename, chunk_size=5242880):
     with open(filename, 'rb') as _file:
@@ -44,18 +59,7 @@ def read_file(filename, chunk_size=5242880):
                 break
             yield data
 
-    headers = {'authorization': API_TOKEN}
-    response = requests.post('https://api.assemblyai.com/v2/upload',
-                            headers=headers,
-                            data=read_file(filename))
-    
-    # deletes file after being uploaded to AssemblyAI
-    os.remove(os.path.join(UPLOAD_FOLDER, filename))
-
-    return response.json()
-
-def upload_speech():
-    f = request.files['file'] # TODO: Check if this works!!!! (Not in HTTP function)
+def upload_speech(f):
     if f and allowed_filename(f.filename):
         filename = secure_filename(f.filename)
         f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
