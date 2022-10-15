@@ -1,4 +1,4 @@
-# conversation-analysis
+# Conversis
 
 Conversis is a web application built on a REST architecture using React, Flask, and the AssemblyAI API to analyze a conversation between two people. It makes use of AssemblyAI's speaker diarization and sentiment analysis to rate individual phrases as well as the overall interactions between them. The result of this analysis is displayed on our React-based frontend in real time.
 
