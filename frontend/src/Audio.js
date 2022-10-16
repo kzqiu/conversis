@@ -27,7 +27,7 @@ a
     if (this.state.isBlocked) {
       console.log('Permission Denied');
     } else if (!this.state.clicked){
-      this.setState({ isListening: "Hearing you for the first time" });
+      this.setState({ isListening: "Hearing you for the first time..." });
       this.setState({clicked: true});
       Mp3Recorder
             .start()
