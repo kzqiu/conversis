@@ -8,7 +8,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <div className="App">
       <div className="App-header">
-        <h1 className="cursive">Can I hear your love tonight??? ;))</h1>
+        <h1 className="title">Conversis</h1>
         <React.StrictMode>
           <div className="container">
           </div>

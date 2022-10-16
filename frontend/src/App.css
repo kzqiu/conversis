@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+
 .App {
   text-align: center;
-  background-color: #800000;
-  color: #f77cc6;
+  background-color: #D9DBF1;
+  color: #0B3948;
 }
 
 .App-logo {
@@ -32,8 +35,8 @@
   max-width: 100%; 
 }
 
-.cursive{
-  font-family: 'Sacramento', cursive;
+.title{
+  font-family: 'Oswald';
 }
 
 .App-link {
@@ -58,4 +61,9 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+p {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
 }
