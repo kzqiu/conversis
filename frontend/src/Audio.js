@@ -3,7 +3,10 @@ import MicRecorder from 'mic-recorder-to-mp3';
 import React from 'react';
 import axios from 'axios';
 import Sentiment from './Sentiment';
-import face from './face.png';
+import sad from './sad.png';
+import happy from './grin.png';
+import think from './think.png';
+import neutral from './neutral.gif';
 
 const Mp3Recorder = new MicRecorder({ bitRate: 64 });
 class Audio extends React.Component {
@@ -11,7 +14,7 @@ class Audio extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      isListening: '',
+      isListening: 'Click the face and start talking!',
       scale: 500,
       clicking: '',
       clicked: false,
@@ -19,6 +22,8 @@ class Audio extends React.Component {
       blobURL: '',
       isBlocked: false,
       sentiment: '',
+      face: think,
+      background: '#D9DBF1'
     };
   }
 a
@@ -69,7 +74,16 @@ a
         .then((response) => {
           console.log(response.data.average);
           this.setState({sentiment: response.data.average});
-          this.setState({ scale: this.scale + this.sentiment * 50});
+          this.setState({ scale: this.state.scale + this.state.sentiment * 50});
+          if(response.data.average >= -0.3 && response.data.average <= 0.3){
+            this.setState({ face: neutral = '#D9DBF1'});
+          } 
+          else if (response.data.average > 0.3){
+            this.setState({ face: happy, background: '#94ffb0'});
+          }
+          else {
+            this.setState({ face: sad, background: '#f56c7c' });
+          }
         })
         .catch(function(response){console.log(response);});
         this.setState({ isListening: "Keep talking! We're loading your results..."});
@@ -98,7 +112,16 @@ a
         .then((response) => {
           console.log(response.data.average);
           this.setState({ sentiment: response.data.average.toFixed(2) });
-          this.setState({ scale: this.scale + this.sentiment*50 });
+          this.setState({ scale: this.state.scale + this.state.sentiment*50 });
+          if(response.data.average >= -0.3 && response.data.average <= 0.3){
+            this.setState({ face: neutral, background: '#D9DBF1' });
+          } 
+          else if (response.data.average > 0.3){
+            this.setState({ face: happy, background: '#94ffb0' });
+          }
+          else {
+            this.setState({ face: sad, background: '#f56c7c' });
+          }
         })
         .catch(function(response){console.log(response);});
       })
@@ -122,7 +145,16 @@ a
         .then((response) => {
           console.log(response.data.average);
           this.setState({ sentiment: response.data.average.toFixed(2) });
-          this.setState({ scale: this.scale + this.sentiment*50 });
+          this.setState({ scale: this.state.scale + this.state.sentiment*50 });
+          if(response.data.average >= -0.3 && response.data.average <= 0.3){
+            this.setState({ face: neutral, background: '#D9DBF1'});
+          } 
+          else if (response.data.average > 0.3){
+            this.setState({ face: happy, background: '#94ffb0' });
+          }
+          else {
+            this.setState({ face: sad, background: '#f56c7c' });
+          }
         })
         .catch(function(response){console.log(response);});
       })
@@ -143,11 +175,14 @@ a
 
   render(){
     return (
+      <div className="App-header" style = {{ backgroundColor: this.state.background}}>
+        <h1 className="title">Conversis</h1>
       <div className="App-header">
         <p>{ this.state.isListening }</p>
         <Sentiment data = {this.state.sentiment}/>
-          <img src = {face} width={this.state.scale} onClick={!this.state.clicked ? this.start : this.click} alt="face">
+          <img src = {this.state.face} width={this.state.scale} onClick={!this.state.clicked ? this.start : this.click} alt="face">
           </img>
+        </div>
       </div>
     );
   }
