@@ -26,7 +26,7 @@ class Audio extends React.Component {
       background: '#D9DBF1'
     };
   }
-a
+
   start = () => {
     console.log('click1');
     if (this.state.isBlocked) {
